@@ -5,7 +5,7 @@ function [ets,ech]=LLspikedetector(d,sfx,llw,prc,badch)
 % detections in any channel occurring simultaneously are involved in the 
 % same spike event. 
 % Based on Estellar et al 2001, DOI 10.1109/IEMBS.2001.1020545
-%INPUTSsdjvnksjdv;jnsvj 
+%INPUTS
   % d: vector or matrix of ICEEG data and 
   % sfx: sampling frequency
   % llw: linelength window (in seconds) over which to calculate transform
