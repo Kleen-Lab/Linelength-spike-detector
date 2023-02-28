@@ -88,7 +88,7 @@ end
 ets(indx,:)=[];  ech(indx,:)=[]; % remove merged instances
 
 % Lastly, impose minimum total spike event detection duration
-minL=.025; %default 250ms (adjust per preference)
+minL=.025; %default 25ms (adjust per preference)
 tooshort=diff(ets,1,2)<(sfx*minL);
 ets(tooshort,:)=[];  ech(tooshort,:)=[]; clear tooshort
 
