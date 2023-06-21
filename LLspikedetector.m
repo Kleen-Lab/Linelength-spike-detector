@@ -1,5 +1,5 @@
 function [ets,ech]=LLspikedetector(d,sfx,llw,prc,badch)
-%jon.kleen@ucsf.edu 2016-2021
+%jon.kleen@ucsf.edu 2016-2023
 % Transforms data into linelength then detects events (spikes) surpassing
 % the designated percentile threshold. Note that this function assumes any 
 % detections in any channel occurring simultaneously are involved in the 
@@ -18,11 +18,11 @@ function [ets,ech]=LLspikedetector(d,sfx,llw,prc,badch)
   
 %Example: [ets,ech]=LLspikedetector(d,512,.04,99.99)
 
-if ~exist('llw','var'); llw=.04; end %default linelength window for transform is 40ms
-if ~exist('prc','var'); prc=99.5; end %default percentile is 99.9%
+if ~exist('llw','var')||isempty(llw); llw=.04; end %default linelength window for transform is 40ms
+if ~exist('prc','var')||isempty(prc); prc=99.5; end %default percentile is 99.9%
 if length(size(d))>2; error('Accepts only vector or 2-D matrix for data'); end
 if size(d,1)>size(d,2); d=d'; end %flip if needed for loop (assumes longer dimension is time)
-if ~exist('badch','var'); badch=false(1,size(d,1)); end %default: all channels ok
+if ~exist('badch','var')||isempty(badch); badch=false(1,size(d,1)); end %default: all channels ok
 
 
 %%  1. LINE-LENGTH TRANSFORM
@@ -45,9 +45,11 @@ end
 %vectorized version of L for threshold computation below
 Lvec=reshape(L,1,numel(L)); Lvec(isnan(Lvec))=[]; 
 %get raw LL threshold
-thresh=prctile(Lvec,prc); 
+if ~iscell(prc); threshold=prctile(Lvec,prc); 
+else; threshold=str2double(prc{1});
+end
 %copy of L as a thresholding index (logical index)
-Li=L>thresh; 
+Li=L>threshold; 
 % Consolidate (sum of index 1's) across channels into a vector,
 % then index for any times when at least one channel is above threshold.
 a=nansum(Li,1)>0; 
@@ -88,7 +90,7 @@ end
 ets(indx,:)=[];  ech(indx,:)=[]; % remove merged instances
 
 % Lastly, impose minimum total spike event detection duration
-minL=.025; %default 250ms (adjust per preference)
+minL=.025; %default at least 25ms (adjust per preference)
 tooshort=diff(ets,1,2)<(sfx*minL);
 ets(tooshort,:)=[];  ech(tooshort,:)=[]; clear tooshort
 
